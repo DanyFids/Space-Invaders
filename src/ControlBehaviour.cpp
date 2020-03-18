@@ -5,7 +5,7 @@
 #include "florp/game/SceneManager.h"
 #include "florp/app/Timing.h"
 #include "florp/graphics/Texture2D.h"
-
+#include "HitboxComponent.h"
 
 #include "florp/game/SceneManager.h"
 #include "florp/game/RenderableComponent.h"
@@ -44,6 +44,10 @@ void ControlBehaviour::Update(entt::entity entity) {
 		space_p = false;
 	}
 
+	if (window->IsKeyDown(Key::Esc)) {
+		window->Close();
+	}
+
 	translate *= Timing::DeltaTime * mySpeed;
 
 	if (glm::length(translate) > 0) {
@@ -58,7 +62,7 @@ void ControlBehaviour::PlayerShoot(entt::entity player)
 	using namespace florp::graphics;
 	using namespace florp::game;
 
-	MeshData bul_mesh = ObjLoader::LoadObj("monkey.obj", glm::vec4(1.0f));
+	MeshData bul_mesh = ObjLoader::LoadObj("Bullet.obj", glm::vec4(1.0f));
 	auto* scene = SceneManager::Get("main");
 
 	static Shader::Sptr shader = nullptr;
@@ -83,9 +87,13 @@ void ControlBehaviour::PlayerShoot(entt::entity player)
 	Transform& t = scene->Registry().get<Transform>(newBul);
 	Transform& pt = scene->Registry().get<Transform>(player);	
 
+	Hitbox& h = scene->Registry().assign<Hitbox>(newBul, glm::vec3(0.2f, 0.5f, 0.2f));
+
 	t.SetPosition(pt.GetLocalPosition() + glm::vec3(0.0f, 0.5f, 0.0f));
 	scene->AddBehaviour<BulletBehaviour>(newBul, glm::vec3(0.0f, 8.0f, 0.0f));
 }
+
+std::vector<std::vector<entt::entity*>>* BulletBehaviour::aliens = nullptr;
 
 void BulletBehaviour::Update(entt::entity entity)
 {
@@ -102,4 +110,6 @@ void BulletBehaviour::Update(entt::entity entity)
 	if (lifetime <= 0.0f) {
 		CurrentRegistry().destroy(entity);
 	}
+
+
 }

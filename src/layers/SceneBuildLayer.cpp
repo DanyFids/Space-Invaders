@@ -115,6 +115,7 @@ void SceneBuilder::Initialize()
 
 	// We'll load in a monkey head to render something interesting
 	MeshData data = ObjLoader::LoadObj("ship.obj", glm::vec4(1.0f));
+	MeshData alien_mesh = ObjLoader::LoadObj("Alien.obj", glm::vec4(1.0f));
 
 	Shader::Sptr shader = std::make_shared<Shader>();
 	shader->LoadPart(ShaderStageType::VertexShader, "shaders/lighting.vs.glsl");
@@ -202,13 +203,30 @@ void SceneBuilder::Initialize()
 		// Make our monkeys spin around the center
 		scene->AddBehaviour<ControlBehaviour>(player, glm::vec3(2.0f, 0.0f, 0.0f));
 	}
+
+	std::vector<std::vector<entt::entity*>> aliens;
+	BulletBehaviour::aliens = &aliens;
+
+	// create our aliens
+	for(int r = 0; r < 6; r++) // rows
+	{
+		aliens.push_back(std::vector<entt::entity*>());
+
+		for (int c = 0; c < 6; c++) {
+
+
+		}
+	}
+
 	
 
 	// We'll use a tiny cube to cast a shadow from our camera, and to indicate where the light sources are
 	MeshData indicatorCube = MeshBuilder::Begin();
 	MeshBuilder::AddAlignedCube(indicatorCube, glm::vec3(0.0f, 0, 0.0), glm::vec3(0.1f, 0.1f, 0.1f));
 	Mesh::Sptr indicatorMesh = MeshBuilder::Bake(indicatorCube);
-		
+	
+
+
 	// Creates our main camera
 	{
 		// The color buffer should be marked as shader readable, so that we generate a texture for it

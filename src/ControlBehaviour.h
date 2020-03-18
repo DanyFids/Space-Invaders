@@ -19,11 +19,18 @@ private:
 
 class BulletBehaviour : public florp::game::IBehaviour {
 public:
+	static std::vector<std::vector<entt::entity*>>* aliens;
+
 	BulletBehaviour(const glm::vec3& spd) : IBehaviour(), mySpeed(spd) {};
 	virtual ~BulletBehaviour() = default;
 
 	virtual void Update(entt::entity entity) override;
 private:
+
 	glm::vec3 mySpeed;
 	float lifetime = 1.5f;
+};
+
+class EnemyBehavior : public florp::game::IBehaviour {
+
 };
