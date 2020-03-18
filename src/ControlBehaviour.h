@@ -31,6 +31,12 @@ private:
 	float lifetime = 1.5f;
 };
 
-class EnemyBehavior : public florp::game::IBehaviour {
+class EnemyBehaviour : public florp::game::IBehaviour {
+public:
+	static std::vector<std::vector<entt::entity*>>* aliens;
 
+
+	virtual void Update(entt::entity entity) override;
+
+private:
 };

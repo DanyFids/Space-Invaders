@@ -94,6 +94,7 @@ void ControlBehaviour::PlayerShoot(entt::entity player)
 }
 
 std::vector<std::vector<entt::entity*>>* BulletBehaviour::aliens = nullptr;
+std::vector<std::vector<entt::entity*>>* EnemyBehaviour::aliens = nullptr;
 
 void BulletBehaviour::Update(entt::entity entity)
 {
