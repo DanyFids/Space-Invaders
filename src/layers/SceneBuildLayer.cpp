@@ -114,7 +114,7 @@ void SceneBuilder::Initialize()
 	SceneManager::SetCurrentScene("main");
 
 	// We'll load in a monkey head to render something interesting
-	MeshData data = ObjLoader::LoadObj("monkey.obj", glm::vec4(1.0f));
+	MeshData data = ObjLoader::LoadObj("ship.obj", glm::vec4(1.0f));
 
 	Shader::Sptr shader = std::make_shared<Shader>();
 	shader->LoadPart(ShaderStageType::VertexShader, "shaders/lighting.vs.glsl");
@@ -198,6 +198,7 @@ void SceneBuilder::Initialize()
 		renderable.Mesh = MeshBuilder::Bake(data);
 		renderable.Material = monkeyMat;
 		Transform& t = scene->Registry().get<Transform>(player);
+		t.SetEulerAngles({0.f, 0.0f, 0.0f});
 		// Make our monkeys spin around the center
 		scene->AddBehaviour<ControlBehaviour>(player, glm::vec3(2.0f, 0.0f, 0.0f));
 	}
@@ -268,7 +269,7 @@ void SceneBuilder::Initialize()
 	// We'll create a projector to cast our smile on the floor
 	entt::entity lightEnt = entt::null;
 	auto& light = CreateShadowCaster(scene, &lightEnt, glm::vec3(0.0f, 15.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 25.0f, 90.0f, { 2048,2048 });
-	light.Color = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
+	light.Color = glm::vec3(1.0f, 1.0f, 1.0f) * 0.5f;
 	light.Attenuation = 1.0f / 15.0f; 
 	//light.ProjectorImage = Texture2D::LoadFromFile("light_projection.png", false, false, true);
 	//scene->AddBehaviour<LightFlickerBehaviour>(lightEnt, 10.0f);
