@@ -19,7 +19,8 @@ private:
 
 class BulletBehaviour : public florp::game::IBehaviour {
 public:
-	static std::vector<std::vector<entt::entity*>>* aliens;
+	static entt::entity player;
+	static std::vector<std::vector<entt::entity>>* aliens;
 
 	BulletBehaviour(const glm::vec3& spd) : IBehaviour(), mySpeed(spd) {};
 	virtual ~BulletBehaviour() = default;
@@ -28,13 +29,18 @@ public:
 private:
 
 	glm::vec3 mySpeed;
-	float lifetime = 1.5f;
+	float lifetime = 3.0f;
 };
 
 class EnemyBehaviour : public florp::game::IBehaviour {
 public:
-	static std::vector<std::vector<entt::entity*>>* aliens;
-
+	static entt::entity player;
+	static std::vector<std::vector<entt::entity>> aliens;
+	static const float COOLDOWN_TIME;
+	static float cooldown;
+	static float mv_time;
+	static const float MOVE_TIME; 
+	static bool dir;
 
 	virtual void Update(entt::entity entity) override;
 

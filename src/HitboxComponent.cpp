@@ -2,17 +2,24 @@
 #include "florp/game/SceneManager.h"
 #include "florp/game/Transform.h"
 
-bool Hitbox::HitDetect(entt::entity t, entt::entity o)
+bool Hitbox::HitDetect(glm::vec3 t_pos, glm::vec3 t_dim, glm::vec3 o_pos, glm::vec3 o_dim)
 {
-	Hitbox h_this = CurrentRegistry().get<Hitbox>(t);
-	Hitbox h_other = CurrentRegistry().get<Hitbox>(o);
-	auto& t_this = CurrentRegistry().get<florp::game::Transform>(t);
-	auto& t_other = CurrentRegistry().get<florp::game::Transform>(o);
+	float t_shallow = t_pos.z - (t_dim.z / 2.0f);
+	float o_shallow = o_pos.z - (o_dim.z / 2.0f);
+	float t_deep = t_pos.z + (t_dim.z / 2.0f);
+	float o_deep = o_pos.z + (o_dim.z / 2.0f);
 
+	float t_left = t_pos.x - (t_dim.x / 2.0f);
+	float o_left = o_pos.x - (o_dim.x / 2.0f);
+	float t_right = t_pos.x + (t_dim.x / 2.0f);
+	float o_right = o_pos.x + (o_dim.x / 2.0f);
 
-	if (t_this.GetLocalPosition().x < t_other.GetLocalPosition().x + h_other.dimm.x && t_this.GetLocalPosition().x + h_this.dimm.x >  t_other.GetLocalPosition().x&&
-		t_this.GetLocalPosition().y < t_other.GetLocalPosition().y + h_other.dimm.y && t_this.GetLocalPosition().y + h_this.dimm.y >  t_other.GetLocalPosition().y&&
-		t_this.GetLocalPosition().z < t_other.GetLocalPosition().z + h_other.dimm.z && t_this.GetLocalPosition().z + h_this.dimm.z >  t_other.GetLocalPosition().z)
+	float t_bottom = t_pos.y - (t_dim.y / 2.0f);
+	float o_bottom = o_pos.y - (o_dim.y / 2.0f);
+	float t_top = t_pos.y + (t_dim.y / 2.0f);
+	float o_top = o_pos.y + (o_dim.y / 2.0f);
+
+	if (t_left < o_right && t_right > o_left && t_top > o_bottom && t_bottom < o_top && t_shallow < o_deep && t_deep > o_shallow)
 		return true;
 	else
 		return false;

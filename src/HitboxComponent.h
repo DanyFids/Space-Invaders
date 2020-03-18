@@ -3,9 +3,18 @@
 #include <GLM/glm.hpp>
 
 class Hitbox {
-	glm::vec3 dimm;
 public:
 	Hitbox(glm::vec3 d) : dimm(d) {}
 
-	static bool HitDetect(entt::entity t, entt::entity o);
+	glm::vec3 dimm;
+
+	static bool HitDetect(glm::vec3 t_pos, glm::vec3 t_dim, glm::vec3 o_pos, glm::vec3 o_dim);
+};
+
+class Life {
+public:
+	Life(int l = 1): life(l) {};
+	~Life() {};
+
+	int life;
 };

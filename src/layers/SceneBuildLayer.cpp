@@ -16,6 +16,7 @@
 #include <ShadowLight.h>
 #include "PointLightComponent.h"
 #include "LightFlickerBehaviour.h"
+#include "HitboxComponent.h"
 
 /*
  * Helper function for creating a shadow casting light
@@ -197,28 +198,39 @@ void SceneBuilder::Initialize()
 		entt::entity player = scene->CreateEntity();
 		RenderableComponent& renderable = scene->Registry().assign<RenderableComponent>(player);
 		renderable.Mesh = MeshBuilder::Bake(data);
-		renderable.Material = monkeyMat;
+		renderable.Material = marbleMat;
 		Transform& t = scene->Registry().get<Transform>(player);
-		t.SetEulerAngles({0.f, 0.0f, 0.0f});
-		// Make our monkeys spin around the center
-		scene->AddBehaviour<ControlBehaviour>(player, glm::vec3(2.0f, 0.0f, 0.0f));
+		scene->AddBehaviour<ControlBehaviour>(player, glm::vec3(4.0f, 0.0f, 0.0f));
+		scene->Registry().assign<Hitbox>(player, glm::vec3(2.5f, 0.5f, 1.0f));
+		scene->Registry().assign<Life>(player, 3);
+
+		EnemyBehaviour::player = player;
+		BulletBehaviour::player = player;
 	}
 
-	std::vector<std::vector<entt::entity*>> aliens;
-	BulletBehaviour::aliens = &aliens;
-	EnemyBehaviour::aliens = &aliens;
+	std::vector<std::vector<entt::entity>> aliens;
 
 	// create our aliens
 	for(int r = 0; r < 6; r++) // rows
 	{
-		aliens.push_back(std::vector<entt::entity*>());
+		aliens.push_back(std::vector<entt::entity>());
+		for (int c = 0; c < 10; c++) {
+			entt::entity alien = scene->CreateEntity();
+			RenderableComponent& renderable = scene->Registry().assign<RenderableComponent>(alien);
+			renderable.Mesh = MeshBuilder::Bake(alien_mesh);
+			renderable.Material = marbleMat;
+			Transform& t = scene->Registry().get<Transform>(alien);
+			t.SetPosition({ -12.0f + (2.0f * c), 25.0f - (2.0f * r), 0.0f  });
+			scene->Registry().assign<Hitbox>(alien, glm::vec3(2.5f, 1.5f, 1.0f));
+			scene->Registry().assign<Life>(alien);
 
-		for (int c = 0; c < 6; c++) {
+			scene->AddBehaviour<EnemyBehaviour>(alien);
 
-
+			aliens[r].push_back(alien);
 		}
 	}
-
+	EnemyBehaviour::aliens = aliens;
+	BulletBehaviour::aliens = &EnemyBehaviour::aliens;
 	
 
 	// We'll use a tiny cube to cast a shadow from our camera, and to indicate where the light sources are
@@ -275,8 +287,8 @@ void SceneBuilder::Initialize()
 		//scene->AddBehaviour<ControlBehaviour>(camera, glm::vec3(1.0f));
 
 		auto& camTransform = scene->Registry().get<Transform>(camera);
-		camTransform.SetPosition(glm::vec3(0.0f, 5.0f, 15.0f));
-		camTransform.LookAt(glm::vec3(0, 5, 0), glm::vec3(0, 1, 0));
+		camTransform.SetPosition(glm::vec3(0.0f, 12.0f, 25.0f));
+		camTransform.LookAt(glm::vec3(0, 12.0f, 0), glm::vec3(0, 1, 0));
 
 		// We'll attach a cube to the camera so that it casts shadows
 		RenderableComponent& renderable = scene->Registry().assign<RenderableComponent>(camera);
@@ -287,7 +299,7 @@ void SceneBuilder::Initialize()
 
 	// We'll create a projector to cast our smile on the floor
 	entt::entity lightEnt = entt::null;
-	auto& light = CreateShadowCaster(scene, &lightEnt, glm::vec3(0.0f, 15.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 25.0f, 90.0f, { 2048,2048 });
+	auto& light = CreateShadowCaster(scene, &lightEnt, glm::vec3(0.0f, 10.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 25.0f, 90.0f, { 2048,2048 });
 	light.Color = glm::vec3(1.0f, 1.0f, 1.0f) * 0.5f;
 	light.Attenuation = 1.0f / 15.0f; 
 	//light.ProjectorImage = Texture2D::LoadFromFile("light_projection.png", false, false, true);
