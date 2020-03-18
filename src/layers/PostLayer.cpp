@@ -46,6 +46,9 @@ void PostLayer::Initialize() {
 		myFullscreenQuad = std::make_shared<florp::graphics::Mesh>(vert, 4, layout, indices, 6);
 	}
 
+	auto ColorCorr = __CreatePass("shaders/post/cc.frag");
+	myPasses.push_back(ColorCorr);
+
 	if (true) {
 		auto highlight = __CreatePass("shaders/post/bloom_highlight.fs.glsl");
 		highlight->Name = "Bloom Highlight";
