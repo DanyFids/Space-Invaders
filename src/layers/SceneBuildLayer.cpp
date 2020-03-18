@@ -117,6 +117,8 @@ void SceneBuilder::Initialize()
 	// We'll load in a monkey head to render something interesting
 	MeshData data = ObjLoader::LoadObj("ship.obj", glm::vec4(1.0f));
 	MeshData alien_mesh = ObjLoader::LoadObj("Alien.obj", glm::vec4(1.0f));
+	MeshData wall_mesh = ObjLoader::LoadObj("Wall.obj", glm::vec4(1.0f));
+	MeshData wallHit_mesh = ObjLoader::LoadObj("WallHit.obj", glm::vec4(1.0f));
 
 	Shader::Sptr shader = std::make_shared<Shader>();
 	shader->LoadPart(ShaderStageType::VertexShader, "shaders/lighting.vs.glsl");
@@ -238,7 +240,35 @@ void SceneBuilder::Initialize()
 	MeshBuilder::AddAlignedCube(indicatorCube, glm::vec3(0.0f, 0, 0.0), glm::vec3(0.1f, 0.1f, 0.1f));
 	Mesh::Sptr indicatorMesh = MeshBuilder::Bake(indicatorCube);
 	
-
+	//Create the Barriers/Walls
+	{
+		float wallPos = -4;//For the 3 wall positions
+		//Use a constant to tell us how many walls to make
+		const int numwalls = 3;
+		//Create the walls
+		for (int ix = 0; ix < numwalls; ix++) {
+			entt::entity Barriers = scene->CreateEntity();
+			RenderableComponent& renderable = scene->Registry().assign<RenderableComponent>(Barriers);
+			renderable.Mesh = MeshBuilder::Bake(wall_mesh);
+			renderable.Material = monkeyMat;
+			Transform& t = scene->Registry().get<Transform>(Barriers);
+			t.SetPosition(glm::vec3(wallPos, 3.0f, 0.0f));
+			wallPos += 4;
+			//Add behviour for each wall
+			//scene->AddBehaviour<WallBehaviour>(Barriers, glm::vec3(1.0f, 0.0f, 0.0f));
+		}
+		//Make the damaged walls
+		for (int ix = 0; ix < numwalls; ix++) {
+			wallPos = -4;
+			entt::entity Barriers = scene->CreateEntity();
+			RenderableComponent& renderable = scene->Registry().assign<RenderableComponent>(Barriers);
+			renderable.Mesh = MeshBuilder::Bake(wallHit_mesh);
+			renderable.Material = monkeyMat;
+			Transform& t = scene->Registry().get<Transform>(Barriers);
+			t.SetPosition(glm::vec3(wallPos, 3.0f, 0.0f));
+			wallPos += 4;
+		}
+	}
 
 	// Creates our main camera
 	{

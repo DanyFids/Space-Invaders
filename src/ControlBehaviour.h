@@ -46,3 +46,15 @@ public:
 
 private:
 };
+
+class WallBehaviour : public florp::game::IBehaviour {
+public:
+	static std::vector<std::vector<entt::entity*>>* walls;
+
+
+	virtual void Update(entt::entity entity) override;
+
+private:
+	int hitCounter = 0;
+	int wallPos = 0;
+};

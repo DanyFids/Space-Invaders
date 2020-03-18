@@ -16,6 +16,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <GLM/gtx/wrap.hpp>
+#include <AudioEngine.h>
 
 template <typename T>
 T wrap(const T& value, const T& min, const T& max) {
@@ -39,6 +40,7 @@ void ControlBehaviour::Update(entt::entity entity) {
 	if (window->IsKeyDown(Key::Space) && !space_p) {
 		PlayerShoot(entity);
 		space_p = true;
+		AudioEngine::PlayEvent("Bullet");//Should Play bullet audio
 	}
 	if (window->GetKeyState(Key::Space) == ButtonState::Released) {
 		space_p = false;
@@ -67,6 +69,7 @@ void ControlBehaviour::Update(entt::entity entity) {
 		EnemyBehaviour::mv_time = EnemyBehaviour::MOVE_TIME;
 		EnemyBehaviour::dir = !EnemyBehaviour::dir;
 	}
+	AudioEngine::Update();
 }
 
 void ControlBehaviour::PlayerShoot(entt::entity player)
@@ -243,5 +246,58 @@ void EnemyBehaviour::Update(entt::entity entity)
 		}
 		CurrentRegistry().destroy(entity);
 		return;
+	}
+}
+
+void WallBehaviour::Update(entt::entity entity)
+{
+	using namespace florp::graphics;
+	using namespace florp::game;
+	using namespace florp::app;
+	Window::Sptr window = Application::Get()->GetWindow();
+
+	glm::vec3 translate = glm::vec3(0.0f);
+	if (window->IsKeyDown(Key::P)) { //For testing if the wall disappears
+		hitCounter = 1.0;
+	}
+	//For destorying the full wall obj
+	if (hitCounter == 1.0f) {
+		CurrentRegistry().destroy(entity);
+		//Create the damaged wall
+
+		MeshData wallHit_mesh = ObjLoader::LoadObj("WallHit.obj", glm::vec4(1.0f));
+		auto* scene = SceneManager::Get("main");
+
+		static Shader::Sptr shader = nullptr;
+		if (shader == nullptr) {
+			shader = std::make_shared<Shader>();
+			shader->LoadPart(ShaderStageType::VertexShader, "shaders/lighting.vs.glsl");
+			shader->LoadPart(ShaderStageType::FragmentShader, "shaders/forward.fs.glsl");
+			shader->Link();
+		}
+
+		static Material::Sptr marbleMat = nullptr;
+		if (marbleMat == nullptr) {
+			marbleMat = std::make_shared<Material>(shader);
+			marbleMat->Set("s_Albedo", Texture2D::LoadFromFile("marble.png", false, true, true));
+		}
+
+
+		auto newWall = scene->CreateEntity();
+		RenderableComponent& renderable = scene->Registry().assign<RenderableComponent>(newWall);
+		renderable.Mesh = MeshBuilder::Bake(wallHit_mesh);
+		renderable.Material = marbleMat;
+		Transform& t = scene->Registry().get<Transform>(newWall);
+
+		//Set position to previous wall position
+		//wallPos = entity.getPosition.x;
+		//t.SetPosition(glm::vec3(wallPos, 3.0f, 0.0f));
+
+		Hitbox& h = scene->Registry().assign<Hitbox>(newWall, glm::vec3(0.2f, 0.5f, 0.2f));
+	}
+
+	//permently destroy the wall
+	if (hitCounter == 2.0f) {
+		CurrentRegistry().destroy(entity);
 	}
 }
