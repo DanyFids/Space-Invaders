@@ -206,6 +206,7 @@ void SceneBuilder::Initialize()
 
 	std::vector<std::vector<entt::entity*>> aliens;
 	BulletBehaviour::aliens = &aliens;
+	EnemyBehaviour::aliens = &aliens;
 
 	// create our aliens
 	for(int r = 0; r < 6; r++) // rows
