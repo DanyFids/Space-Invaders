@@ -62,7 +62,7 @@ void ControlBehaviour::PlayerShoot(entt::entity player)
 	using namespace florp::graphics;
 	using namespace florp::game;
 
-	MeshData bul_mesh = ObjLoader::LoadObj("monkey.obj", glm::vec4(1.0f));
+	MeshData bul_mesh = ObjLoader::LoadObj("Bullet.obj", glm::vec4(1.0f));
 	auto* scene = SceneManager::Get("main");
 
 	static Shader::Sptr shader = nullptr;

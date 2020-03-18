@@ -118,7 +118,6 @@ void SceneBuilder::Initialize()
 	MeshData dataA = ObjLoader::LoadObj("Alien.obj", glm::vec4(1.0f));
 	MeshData dataW = ObjLoader::LoadObj("Wall.obj", glm::vec4(1.0f));
 	MeshData dataWH = ObjLoader::LoadObj("WallHit.obj", glm::vec4(1.0f));
-	MeshData dataB = ObjLoader::LoadObj("Bullet.obj", glm::vec4(1.0f));
 
 	Shader::Sptr shader = std::make_shared<Shader>();
 	shader->LoadPart(ShaderStageType::VertexShader, "shaders/lighting.vs.glsl");
