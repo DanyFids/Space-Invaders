@@ -114,7 +114,7 @@ void SceneBuilder::Initialize()
 	SceneManager::SetCurrentScene("main");
 
 	// We'll load in a monkey head to render something interesting
-	MeshData data = ObjLoader::LoadObj("monkey.obj", glm::vec4(1.0f));
+	MeshData data = ObjLoader::LoadObj("Ship.obj", glm::vec4(1.0f));
 
 	Shader::Sptr shader = std::make_shared<Shader>();
 	shader->LoadPart(ShaderStageType::VertexShader, "shaders/lighting.vs.glsl");

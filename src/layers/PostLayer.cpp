@@ -46,7 +46,7 @@ void PostLayer::Initialize() {
 		myFullscreenQuad = std::make_shared<florp::graphics::Mesh>(vert, 4, layout, indices, 6);
 	}
 
-	if (false) {
+	if (true) {
 		auto highlight = __CreatePass("shaders/post/bloom_highlight.fs.glsl");
 		highlight->Name = "Bloom Highlight";
 		highlight->Shader->SetUniform("a_BloomThreshold", 1.0f);
