@@ -242,6 +242,7 @@ void SceneBuilder::Initialize()
 		renderable.Mesh = MeshBuilder::Bake(data);
 		renderable.Material = monkeyMat;
 		Transform& t = scene->Registry().get<Transform>(player);
+		t.SetEulerAngles({0.f, 0.0f, 0.0f});
 		// Make our monkeys spin around the center
 		scene->AddBehaviour<ControlBehaviour>(player, glm::vec3(2.0f, 0.0f, 0.0f));
 	}
@@ -312,7 +313,7 @@ void SceneBuilder::Initialize()
 	// We'll create a projector to cast our smile on the floor
 	entt::entity lightEnt = entt::null;
 	auto& light = CreateShadowCaster(scene, &lightEnt, glm::vec3(0.0f, 15.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 25.0f, 90.0f, { 2048,2048 });
-	light.Color = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
+	light.Color = glm::vec3(1.0f, 1.0f, 1.0f) * 0.5f;
 	light.Attenuation = 1.0f / 15.0f; 
 	//light.ProjectorImage = Texture2D::LoadFromFile("light_projection.png", false, false, true);
 	//scene->AddBehaviour<LightFlickerBehaviour>(lightEnt, 10.0f);
