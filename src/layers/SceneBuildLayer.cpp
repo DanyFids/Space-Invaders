@@ -103,46 +103,6 @@ florp::graphics::Texture2D::Sptr CreateSolidTexture(glm::vec4 color)
 	}
 }
 
-void SceneBuilder::InitSound()
-{
-	//// Init AudioEngine (Don't forget to shut down and update)
-	audioEngine.Init();
-
-	//// Load a bank (Use the flag FMOD_STUDIO_LOAD_BANK_NORMAL)
-	audioEngine.LoadBank("Master", FMOD_STUDIO_LOAD_BANK_NORMAL);
-
-	//// Load an event
-	audioEngine.LoadEvent("Bullet", "{5eebb49c-e17f-447c-90b0-ca24a4ddcb08}");
-
-	//// Play the event
-	audioEngine.PlayEvent("Bullet");
-
-	////Vectors for positioning the 3D sound
-	glm::vec3 startPosition = { 0,0,0 };
-	//// Set initial position  
-	audioEngine.SetEventPosition("Bullet", startPosition);
-
-
-
-	//For use in an update function
-	//if (TTK::Input::GetKeyPressed(TTK::KeyCode::Space)) {
-	//  //// Play the event
-	//  audioEngine.PlayEvent("Bullet");
-	//}
-
-
-	//Stops sound
-	//audioEngine.StopEvent("Bullet");
-
-	//Update Audio
-	audioEngine.Update();
-}
-
-void SceneBuilder::ShutdownSound()
-{
-	audioEngine.Shutdown();
-}
-
 void SceneBuilder::Initialize()
 {
 	florp::app::Application* app = florp::app::Application::Get();

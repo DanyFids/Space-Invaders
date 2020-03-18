@@ -16,6 +16,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <GLM/gtx/wrap.hpp>
+#include <AudioEngine.h>
 
 template <typename T>
 T wrap(const T& value, const T& min, const T& max) {
@@ -39,6 +40,7 @@ void ControlBehaviour::Update(entt::entity entity) {
 	if (window->IsKeyDown(Key::Space) && !space_p) {
 		PlayerShoot(entity);
 		space_p = true;
+		AudioEngine::PlayEvent("Bullet");//Should Play bullet audio
 	}
 	if (window->GetKeyState(Key::Space) == ButtonState::Released) {
 		space_p = false;
@@ -51,6 +53,8 @@ void ControlBehaviour::Update(entt::entity entity) {
 		translate += transform.GetLocalPosition();
 		transform.SetPosition(translate);
 	}
+	//// Update Audio Engine
+	AudioEngine::Update();
 }
 
 void ControlBehaviour::PlayerShoot(entt::entity player)
