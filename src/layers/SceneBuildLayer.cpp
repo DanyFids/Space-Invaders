@@ -191,61 +191,17 @@ void SceneBuilder::Initialize()
 	mat2->Set("s_Emissive", Texture2D::LoadFromFile("polka.png", false, true, true));
 	mat2->Set("a_EmissiveStrength", 1.0f);
 
-
-	// We'll use a constant to tell us how many monkeys to use
-	const int numMonkeys = 6;
-	const float step = glm::two_pi<float>() / numMonkeys; // Determine the angle between monkeys in radians
-
-	// We'll create a ring of monkeys
-	for (int ix = 0; ix < numMonkeys; ix++) {
-		entt::entity test = scene->CreateEntity();
-		RenderableComponent& renderable = scene->Registry().assign<RenderableComponent>(test);
-		renderable.Mesh = MeshBuilder::Bake(data);
-		renderable.Material = monkeyMat;
-		Transform& t = scene->Registry().get<Transform>(test);
-		t.SetPosition(glm::vec3(glm::cos(step * ix) * 5.0f, 0.0f, glm::sin(step * ix) * 5.0f));
-		t.SetEulerAngles(glm::vec3(-90.0f, glm::degrees(-step * ix), 0.0f));
-	}
-	
-	// We'll create a ring of point lights behind each monkey
-	for (int ix = 0; ix < numMonkeys; ix++) {
-		// We'll attach an indicator cube to all the lights, and align it with the light's facing
-		entt::entity entity = scene->CreateEntity();
-		PointLightComponent& light = scene->Registry().assign<PointLightComponent>(entity);
-		light.Color = glm::vec3(
-			glm::sin(-ix * step) + 1.0f, 
-			glm::cos(-ix * step) + 1.0f, 
-			glm::sin((-ix * step) + glm::pi<float>()) + 1.0f) / 2.0f * 0.1f;
-		light.Attenuation = 1.0f / 10.0f;
-		Transform& t = scene->Registry().get<Transform>(entity);
-		t.SetPosition(glm::vec3(glm::cos(step * ix) * 20.0f, 2.0f, glm::sin(step * ix) * 20.0f));
-		scene->AddBehaviour<LightFlickerBehaviour>(entity, 2.0f, 0.6f, 1.2f);
-	}
-
-	// The central monkey
+	// PLAYER
 	{
-		entt::entity test = scene->CreateEntity();
-		RenderableComponent& renderable = scene->Registry().assign<RenderableComponent>(test);
+		entt::entity player = scene->CreateEntity();
+		RenderableComponent& renderable = scene->Registry().assign<RenderableComponent>(player);
 		renderable.Mesh = MeshBuilder::Bake(data);
 		renderable.Material = monkeyMat;
-		Transform& t = scene->Registry().get<Transform>(test);
+		Transform& t = scene->Registry().get<Transform>(player);
 		// Make our monkeys spin around the center
-		scene->AddBehaviour<RotateBehaviour>(test, glm::vec3(45.0f, 45.0f, 45.0f));
+		scene->AddBehaviour<ControlBehaviour>(player, glm::vec3(2.0f, 0.0f, 0.0f));
 	}
 	
-	// The box with the polka pattern
-	{
-		MeshData indicatorCube = MeshBuilder::Begin();
-		MeshBuilder::AddAlignedCube(indicatorCube, glm::vec3(0.0f, 0, 0.0), glm::vec3(2.0f, 2.0f, 2.0f));
-		Mesh::Sptr indicatorMesh = MeshBuilder::Bake(indicatorCube);
-		
-		entt::entity test = scene->CreateEntity();
-		RenderableComponent& renderable = scene->Registry().assign<RenderableComponent>(test);
-		renderable.Mesh = indicatorMesh;
-		renderable.Material = mat2;
-		Transform& t = scene->Registry().get<Transform>(test);
-		t.SetPosition({ 20.0f, 0.0f, 0.0f });
-	}
 
 	// We'll use a tiny cube to cast a shadow from our camera, and to indicate where the light sources are
 	MeshData indicatorCube = MeshBuilder::Begin();
@@ -296,11 +252,11 @@ void SceneBuilder::Initialize()
 		cam.Projection = glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, 1000.0f);
 
 		// We'll add our control behaviour so that we can fly the camera around
-		scene->AddBehaviour<ControlBehaviour>(camera, glm::vec3(1.0f));
+		//scene->AddBehaviour<ControlBehaviour>(camera, glm::vec3(1.0f));
 
 		auto& camTransform = scene->Registry().get<Transform>(camera);
-		camTransform.SetPosition(glm::vec3(5.0f, 5.0f, 5.0f));
-		camTransform.LookAt(glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+		camTransform.SetPosition(glm::vec3(0.0f, 5.0f, 15.0f));
+		camTransform.LookAt(glm::vec3(0, 5, 0), glm::vec3(0, 1, 0));
 
 		// We'll attach a cube to the camera so that it casts shadows
 		RenderableComponent& renderable = scene->Registry().assign<RenderableComponent>(camera);
@@ -311,35 +267,12 @@ void SceneBuilder::Initialize()
 
 	// We'll create a projector to cast our smile on the floor
 	entt::entity lightEnt = entt::null;
-	auto& light = CreateShadowCaster(scene, &lightEnt, glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 25.0f);
+	auto& light = CreateShadowCaster(scene, &lightEnt, glm::vec3(0.0f, 15.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 25.0f, 90.0f, { 2048,2048 });
 	light.Color = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
 	light.Attenuation = 1.0f / 15.0f; 
-	light.ProjectorImage = Texture2D::LoadFromFile("light_projection.png", false, false, true);
-	scene->AddBehaviour<LightFlickerBehaviour>(lightEnt, 10.0f);
-		
-	// We'll create a ring of shadow casting lights, one for each monkey
-	for (int ix = 0; ix < numMonkeys; ix++) {
-		entt::entity lightEnt = entt::null;
-		auto& light = CreateShadowCaster(
-			scene, &lightEnt, 
-			glm::vec3(glm::cos(step * ix) * 9.0f, 3.5f, glm::sin(step * ix) * 9.0f), // Each light will be behind the monkey
-			glm::vec3(0.0f),                                                         // Look at the center
-			glm::vec3(0.0f, 1.0f, 0.0f),                                             // Y is up
-			25.0f,                                                                   // The far plane is 25 units away
-			75.0f);                                                                  // We'll use a 75 degree field of view
-		// We'll generate a color for the light
-		light.Color = glm::vec3(1.0f, 0.64f, 0.0f) * 0.2f; 
-		light.Attenuation = 1.0f / 5.0f;
-		scene->AddBehaviour<LightFlickerBehaviour>(lightEnt, 5.0f, 0.5f, 1.0f);
-
-		// We'll attach an indicator cube to all the lights, and align it with the light's facing
-		entt::entity entity = scene->CreateEntity();
-		RenderableComponent& renderable = scene->Registry().assign<RenderableComponent>(entity);
-		renderable.Mesh = indicatorMesh;
-		renderable.Material = marbleMat;
-		Transform& t = scene->Registry().get<Transform>(entity);
-		t.SetPosition(glm::vec3(glm::cos(step * ix) * 9.0f, 2.0f, glm::sin(step * ix) * 9.0f));
-	}
+	//light.ProjectorImage = Texture2D::LoadFromFile("light_projection.png", false, false, true);
+	//scene->AddBehaviour<LightFlickerBehaviour>(lightEnt, 10.0f);
+	
 			
 	// Our floor plane
 	{
