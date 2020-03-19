@@ -241,34 +241,30 @@ void SceneBuilder::Initialize()
 	Mesh::Sptr indicatorMesh = MeshBuilder::Bake(indicatorCube);
 	
 	//Create the Barriers/Walls
+	float wallPos = -4;//For the 3 wall positions
+	std::vector<std::vector<entt::entity>> walls;
+	
+
+	//Create the Barriers/Walls
+	for (int wallCount = 0; wallCount < 3; wallCount++) // rows
 	{
-		float wallPos = -4;//For the 3 wall positions
-		//Use a constant to tell us how many walls to make
-		const int numwalls = 3;
-		//Create the walls
-		for (int ix = 0; ix < numwalls; ix++) {
+			walls.push_back(std::vector<entt::entity>());
 			entt::entity Barriers = scene->CreateEntity();
 			RenderableComponent& renderable = scene->Registry().assign<RenderableComponent>(Barriers);
 			renderable.Mesh = MeshBuilder::Bake(wall_mesh);
-			renderable.Material = monkeyMat;
+			renderable.Material = marbleMat;
 			Transform& t = scene->Registry().get<Transform>(Barriers);
 			t.SetPosition(glm::vec3(wallPos, 3.0f, 0.0f));
 			wallPos += 4;
-			//Add behviour for each wall
-			//scene->AddBehaviour<WallBehaviour>(Barriers, glm::vec3(1.0f, 0.0f, 0.0f));
-		}
-		//Make the damaged walls
-		for (int ix = 0; ix < numwalls; ix++) {
-			wallPos = -4;
-			entt::entity Barriers = scene->CreateEntity();
-			RenderableComponent& renderable = scene->Registry().assign<RenderableComponent>(Barriers);
-			renderable.Mesh = MeshBuilder::Bake(wallHit_mesh);
-			renderable.Material = monkeyMat;
-			Transform& t = scene->Registry().get<Transform>(Barriers);
-			t.SetPosition(glm::vec3(wallPos, 3.0f, 0.0f));
-			wallPos += 4;
-		}
+			scene->Registry().assign<Hitbox>(Barriers, glm::vec3(2.5f, 1.5f, 1.0f));
+			scene->Registry().assign<WallLife>(Barriers);
+	
+			scene->AddBehaviour<WallBehaviour>(Barriers);
+	
+			walls[wallCount].push_back(Barriers);
 	}
+	WallBehaviour::walls = walls;
+	BulletBehaviour::walls = &WallBehaviour::walls;
 
 	// Creates our main camera
 	{

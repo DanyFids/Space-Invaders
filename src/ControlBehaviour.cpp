@@ -111,8 +111,13 @@ void ControlBehaviour::PlayerShoot(entt::entity player)
 std::vector<std::vector<entt::entity>>* BulletBehaviour::aliens = nullptr;
 std::vector<std::vector<entt::entity>> EnemyBehaviour::aliens;
 
+std::vector<std::vector<entt::entity>>* BulletBehaviour::walls = nullptr;
+std::vector<std::vector<entt::entity>> WallBehaviour::walls;
+
+
 entt::entity BulletBehaviour::player;
 entt::entity EnemyBehaviour::player;
+entt::entity WallBehaviour::player;
 
 const float EnemyBehaviour::COOLDOWN_TIME = 1.5f;
 float EnemyBehaviour::cooldown = EnemyBehaviour::COOLDOWN_TIME;
@@ -162,6 +167,24 @@ void BulletBehaviour::Update(entt::entity entity)
 			}
 		}
 	}
+	//Hopefully this works to delete the walls/barriers
+	for (int r = 0; r < walls->size(); r++) {
+		for (int c = 0; c < (*walls)[r].size(); c++) {
+			entt::entity a = (*walls)[r].at(c);
+
+			auto& at = CurrentRegistry().get<florp::game::Transform>(a);
+			auto& ahb = CurrentRegistry().get<Hitbox>(a);
+
+
+			if (Hitbox::HitDetect(transform.GetLocalPosition(), hb.dimm, at.GetLocalPosition(), ahb.dimm)) {
+				CurrentRegistry().destroy(entity);
+				auto& al = CurrentRegistry().get<WallLife>(a);
+				al.life = 0;
+				return;
+			}
+		}
+	}
+
 }
 
 void EnemyBehaviour::Update(entt::entity entity)
@@ -251,53 +274,23 @@ void EnemyBehaviour::Update(entt::entity entity)
 
 void WallBehaviour::Update(entt::entity entity)
 {
-	using namespace florp::graphics;
-	using namespace florp::game;
-	using namespace florp::app;
-	Window::Sptr window = Application::Get()->GetWindow();
+	auto& al = CurrentRegistry().get<WallLife>(entity);
 
-	glm::vec3 translate = glm::vec3(0.0f);
-	if (window->IsKeyDown(Key::P)) { //For testing if the wall disappears
-		hitCounter = 1.0;
-	}
-	//For destorying the full wall obj
-	if (hitCounter == 1.0f) {
-		CurrentRegistry().destroy(entity);
-		//Create the damaged wall
+	int row = 0;
 
-		MeshData wallHit_mesh = ObjLoader::LoadObj("WallHit.obj", glm::vec4(1.0f));
-		auto* scene = SceneManager::Get("main");
-
-		static Shader::Sptr shader = nullptr;
-		if (shader == nullptr) {
-			shader = std::make_shared<Shader>();
-			shader->LoadPart(ShaderStageType::VertexShader, "shaders/lighting.vs.glsl");
-			shader->LoadPart(ShaderStageType::FragmentShader, "shaders/forward.fs.glsl");
-			shader->Link();
+	for (int r = 0; r < walls.size(); r++) {
+		for (int c = 0; c < walls[r].size(); c++) {
+			if (walls[r][0] == entity) {
+				row = r;
+			}
 		}
-
-		static Material::Sptr marbleMat = nullptr;
-		if (marbleMat == nullptr) {
-			marbleMat = std::make_shared<Material>(shader);
-			marbleMat->Set("s_Albedo", Texture2D::LoadFromFile("marble.png", false, true, true));
-		}
-
-
-		auto newWall = scene->CreateEntity();
-		RenderableComponent& renderable = scene->Registry().assign<RenderableComponent>(newWall);
-		renderable.Mesh = MeshBuilder::Bake(wallHit_mesh);
-		renderable.Material = marbleMat;
-		Transform& t = scene->Registry().get<Transform>(newWall);
-
-		//Set position to previous wall position
-		//wallPos = entity.getPosition.x;
-		//t.SetPosition(glm::vec3(wallPos, 3.0f, 0.0f));
-
-		Hitbox& h = scene->Registry().assign<Hitbox>(newWall, glm::vec3(0.2f, 0.5f, 0.2f));
 	}
 
-	//permently destroy the wall
-	if (hitCounter == 2.0f) {
+	//WORKS, this can be commented out to make walls invincible
+	if (al.life <= 0) {
+		walls.erase(walls.begin() + row);
+	
 		CurrentRegistry().destroy(entity);
+		return;
 	}
 }

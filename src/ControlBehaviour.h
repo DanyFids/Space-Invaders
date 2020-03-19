@@ -21,6 +21,7 @@ class BulletBehaviour : public florp::game::IBehaviour {
 public:
 	static entt::entity player;
 	static std::vector<std::vector<entt::entity>>* aliens;
+	static std::vector<std::vector<entt::entity>>* walls;
 
 	BulletBehaviour(const glm::vec3& spd) : IBehaviour(), mySpeed(spd) {};
 	virtual ~BulletBehaviour() = default;
@@ -49,12 +50,12 @@ private:
 
 class WallBehaviour : public florp::game::IBehaviour {
 public:
-	static std::vector<std::vector<entt::entity*>>* walls;
+	static entt::entity player;
+	static std::vector<std::vector<entt::entity>> walls;
 
 
 	virtual void Update(entt::entity entity) override;
 
 private:
 	int hitCounter = 0;
-	int wallPos = 0;
 };

@@ -18,3 +18,11 @@ public:
 
 	int life;
 };
+
+class WallLife {
+public:
+	WallLife(int l = 1) : life(l) {};
+	~WallLife() {};
+
+	int life;
+};
